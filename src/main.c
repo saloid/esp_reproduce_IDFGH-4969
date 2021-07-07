@@ -25,19 +25,23 @@ void app_main()
 {
     esp_event_handler_instance_t event_instance;
     TimerHandle_t timer_instance;
-    printf("Start");
+    esp_err_t err;
+    printf("Start\n");
+
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     message_at_event = "correct event message\n";
 
     // subscribe to event
     printf("Subscribe to event ");
-    if (esp_event_handler_instance_register(MY_CUSTOM_EVENT_BASE, ESP_EVENT_ANY_ID, my_events_handler, NULL, &event_instance) == ESP_OK)
+    err = esp_event_handler_instance_register(MY_CUSTOM_EVENT_BASE, ESP_EVENT_ANY_ID, my_events_handler, NULL, &event_instance);
+    if (err == ESP_OK)
     {
         printf("OK\n");
     }
     else
     {
-        printf("fail!!!");
+        printf("fail (%#08X) !!!\n", err);
     }
 
     timer_instance = xTimerCreateStatic( "timer", pdMS_TO_TICKS(1000), pdTRUE, NULL, timerCallback, &xTimerBuffer );
@@ -49,7 +53,7 @@ void app_main()
     }
     else
     {
-        printf("fail!!!");
+        printf("fail!!!\n");
     }
 
     vTaskDelay(pdMS_TO_TICKS(10000));
